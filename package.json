@@ -1,6 +1,6 @@
 {
   "name": "suggest-plugin",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "description": "This JS native accessible plugin will propose suggestions from ajax response.",
   "main": "suggestPlugin.js",
   "repository": {
