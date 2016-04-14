@@ -2,7 +2,7 @@ var suggestPlugin = (function(){
   'use strict';
 
   function extend(){
-    for(var i=1; i<arguments.length; i++) {
+    for(var i = 1, len = arguments.length; i < len; i++) {
       for(var key in arguments[i]) {
         if(arguments[i].hasOwnProperty(key)) {
           arguments[0][key] = arguments[i][key];
@@ -18,9 +18,9 @@ var suggestPlugin = (function(){
       defaults    = {
                       label          : 'label',               // match input with that
                       minLength      : 1,                     // request after [minLength] characters
-                      activeClass    : 'active',              // class for active item (hover+active)
+                      activeClass    : 'active',              // class for active items (hover+active)
                       resultsClass   : 'suggest-list',        // class to the results list element
-                      itemClass      : 'suggest-list__item',  // class on each item
+                      itemClass      : 'suggest-list__item',  // class on each items
                       visibilityClass: 'is-opened'            // class to define results list visibility
                     };
 
@@ -106,7 +106,8 @@ var suggestPlugin = (function(){
     },
 
     _keyboardNavigation: function() {
-      var that = this;
+      var that = this,
+          timeout;
 
       // Prevent form submit when navigating in suggestions
       that.input.addEventListener('keydown', function(e) {
@@ -153,13 +154,14 @@ var suggestPlugin = (function(){
 
           default:
             if (value.length > that.options.minLength) {
-              if (that.request) {
-                that.request.abort();
-              }
-              that._calldata(value, that._displaySuggestions);
+              that.request.abort();
+              clearTimeout(timeout);
+              timeout = setTimeout(function() {
+                that._callData(value, that._displaySuggestions);
+              }, 250);
 
             } else {
-              //that.data = [];
+              that.data = [];
               that._closeSuggestions();
             }
             break;
@@ -219,8 +221,8 @@ var suggestPlugin = (function(){
       }
     },
 
-    _calldata: function(string, callback){
-      var that = this
+    _callData: function(string, callback){
+      var that = this;
 
       callback = callback.bind(that);
 
@@ -263,9 +265,9 @@ var suggestPlugin = (function(){
         var template = '';
 
         for (var i = 0, len = that.data.length; i < len; i++) {
-          template += '<li id="'+ i +'" role="option" class="'+ that.options.itemsClass +'">';
+          template += '<li id="'+ i +'" role="option" class="'+ that.options.itemClass +'">';
           template += '  <a href="#" type="button" tabindex="-1">'+ that.data[i][that.options.label] +'</a>';
-          template += '</li>'
+          template += '</li>';
         }
 
         that.results.querySelector('ul').innerHTML = template;
@@ -335,7 +337,7 @@ var suggestPlugin = (function(){
         elements[i].dataset.plugin_suggest = new Suggest(elements[i], opt);
       }
     }
-  }
+  };
 
   return suggest;
 })();
