@@ -20,7 +20,7 @@
     minLength      : 1,                     // request after [minLength] characters
     activeClass    : 'active',              // class for active items (hover+active)
     resultsClass   : 'suggest-list',        // class to the results list element
-    itemsClass     : 'suggest-list__items', // class on each items
+    itemClass      : 'suggest-list__item', // class on each items
     visibilityClass: 'is-opened'            // class to define results list visibility
   };
   ```
