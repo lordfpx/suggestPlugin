@@ -1,8 +1,12 @@
-var suggestPlugin = (function(){
+(function(name, definition) {
+    if (typeof module != 'undefined') module.exports = definition();
+    else if (typeof define == 'function' && typeof define.amd == 'object') define(definition);
+    else this[name] = definition();
+}('suggestPlugin', function() {
   'use strict';
 
   function extend(){
-    for(var i = 1, len = arguments.length; i < len; i++) {
+    for(var i=1; i<arguments.length; i++) {
       for(var key in arguments[i]) {
         if(arguments[i].hasOwnProperty(key)) {
           arguments[0][key] = arguments[i][key];
@@ -158,7 +162,7 @@ var suggestPlugin = (function(){
               clearTimeout(timeout);
               timeout = setTimeout(function() {
                 that._callData(value, that._displaySuggestions);
-              }, 250);
+              }, 350);
 
             } else {
               that.data = [];
@@ -222,7 +226,7 @@ var suggestPlugin = (function(){
     },
 
     _callData: function(string, callback){
-      var that = this;
+      var that = this
 
       callback = callback.bind(that);
 
@@ -267,7 +271,7 @@ var suggestPlugin = (function(){
         for (var i = 0, len = that.data.length; i < len; i++) {
           template += '<li id="'+ i +'" role="option" class="'+ that.options.itemClass +'">';
           template += '  <a href="#" type="button" tabindex="-1">'+ that.data[i][that.options.label] +'</a>';
-          template += '</li>';
+          template += '</li>'
         }
 
         that.results.querySelector('ul').innerHTML = template;
@@ -337,7 +341,7 @@ var suggestPlugin = (function(){
         elements[i].dataset.plugin_suggest = new Suggest(elements[i], opt);
       }
     }
-  };
+  }
 
   return suggest;
-})();
+}));

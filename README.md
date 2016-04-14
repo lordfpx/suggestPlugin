@@ -3,6 +3,12 @@
 
   Demo: [Codepen](https://codepen.io/lordfpx/pen/zqRzjX)
 
+  You can also find it on npm: https://www.npmjs.com/package/suggest-plugin
+
+  > npm install suggest-plugin
+
+  The plugin is commonJS (tested with browserify) and AMD (untested) compliant.
+
 
 ## Plugin initialization
 
