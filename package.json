@@ -1,0 +1,22 @@
+{
+  "name": "suggest-plugin",
+  "version": "1.0.0",
+  "description": "This JS native accessible plugin will propose suggestions from ajax response.",
+  "main": "suggestPlugin.js",
+  "repository" : {
+    "type" : "git",
+    "url" : "https://github.com/npm/npm.git"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "javascript",
+    "accessibility",
+    "a11y",
+    "native",
+    "autocomplete"
+  ],
+  "author": "Thierry Philippe",
+  "license": "ISC"
+}
