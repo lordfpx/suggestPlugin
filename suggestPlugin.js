@@ -20,7 +20,7 @@ var suggestPlugin = (function(){
                       minLength      : 1,                     // request after [minLength] characters
                       activeClass    : 'active',              // class for active items (hover+active)
                       resultsClass   : 'suggest-list',        // class to the results list element
-                      itemsClass     : 'suggest-list__items', // class on each items
+                      itemClass      : 'suggest-list__item',  // class on each items
                       visibilityClass: 'is-opened'            // class to define results list visibility
                     };
 
@@ -30,7 +30,7 @@ var suggestPlugin = (function(){
     var attrOptions = JSON.parse(this.element.getAttribute(optionsAttr));
     this.options    = extend({}, defaults, opt, attrOptions);
 
-    this.datas      = [];     // response from the ajax call
+    this.data       = [];     // response from the ajax call
     this.tempVal    = "";     // when activating an item, store user input
     this.opened     = false;
     this.pointer    = -1;     // active item in list (-1 = no active item)
@@ -156,10 +156,10 @@ var suggestPlugin = (function(){
               if (that.request) {
                 that.request.abort();
               }
-              that._callDatas(value, that._displaySuggestions);
+              that._calldata(value, that._displaySuggestions);
 
             } else {
-              //that.datas = [];
+              //that.data = [];
               that._closeSuggestions();
             }
             break;
@@ -219,7 +219,7 @@ var suggestPlugin = (function(){
       }
     },
 
-    _callDatas: function(string, callback){
+    _calldata: function(string, callback){
       var that = this
 
       callback = callback.bind(that);
@@ -234,37 +234,37 @@ var suggestPlugin = (function(){
       return that.request;
     },
 
-    _displaySuggestions: function(string, datas) {
+    _displaySuggestions: function(string, data) {
       var that = this;
 
       that.tempVal = that.input.value;
 
-      if (datas) {
+      if (data) {
         // if it's directly an array of results -> [{"bla": "xxx"}, {"bla": "xxx"}, {"bla": "xxx"}]
-        if (datas.length) {
-          that.datas = datas;
+        if (data.length) {
+          that.data = data;
 
         // if the array is in an object (arrayName otpion is required)
         // -> {"items": [{"bla": "xxx"}, {"bla": "xxx"}, {"bla": "xxx"}]}
         } else {
           if (that.arrayName) {
-            that.datas = datas[that.arrayName];
+            that.data = data[that.arrayName];
           } else {
-            console.log('You must specify the arrayName option to find datas', 'data-suggest=\"{"arrayName": "Search", "label": "Title"}\" for exemple');
+            console.log('You must specify the arrayName option to find data', 'data-suggest=\"{"arrayName": "Search", "label": "Title"}\" for exemple');
           }
         }
       }
 
-      if (string !== '' && typeof that.datas !== 'undefined' && that.datas.length > 0) {
+      if (string !== '' && typeof that.data !== 'undefined' && that.data.length > 0) {
         // directly return if only 1 entry  and if === user entry
-        if (that.datas.length === 1 && string === that.datas[0][that.options.label]) { return; }
+        if (that.data.length === 1 && string === that.data[0][that.options.label]) { return; }
 
         // generate results list
         var template = '';
 
-        for (var i = 0, len = that.datas.length; i < len; i++) {
+        for (var i = 0, len = that.data.length; i < len; i++) {
           template += '<li id="'+ i +'" role="option" class="'+ that.options.itemsClass +'">';
-          template += '  <a href="#" type="button" tabindex="-1">'+ that.datas[i][that.options.label] +'</a>';
+          template += '  <a href="#" type="button" tabindex="-1">'+ that.data[i][that.options.label] +'</a>';
           template += '</li>'
         }
 
@@ -285,7 +285,7 @@ var suggestPlugin = (function(){
 
     _preSuggestion: function() {
       // prefill the input with selected suggestion
-      this.input.value = this.datas[this.pointer][this.options.label];
+      this.input.value = this.data[this.pointer][this.options.label];
       return this;
     },
 
@@ -309,8 +309,8 @@ var suggestPlugin = (function(){
     },
 
     _insertSuggestion: function(string) {
-      this.input.value = string ? string : this.datas[this.pointer][this.options.label];
-      this.datas = [];
+      this.input.value = string ? string : this.data[this.pointer][this.options.label];
+      this.data = [];
       this._closeSuggestions();
     },
 
@@ -338,4 +338,4 @@ var suggestPlugin = (function(){
   }
 
   return suggest;
-})(); 
+})();
