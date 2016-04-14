@@ -1,5 +1,6 @@
 # suggestPlugin
-  This JS native accessible plugin will propose suggestions from ajax response.
+
+  This JS native accessible plugin will propose suggestions from ajax response. The display and animations are to be managed in CSS side using defaults or configured classes.
 
   Demo: [Codepen](https://codepen.io/lordfpx/pen/zqRzjX)
 
@@ -16,11 +17,12 @@
 
   ```javascript
   {
-    label          : 'label',                // match input with that
+    label          : 'label',               // match input with that
     minLength      : 1,                     // request after [minLength] characters
+    wrapperClass   : 'suggest-wrapper',     // class for the div that wrap both input and results
     activeClass    : 'active',              // class for active items (hover+active)
     resultsClass   : 'suggest-list',        // class to the results list element
-    itemClass      : 'suggest-list__item', // class on each items
+    itemClass      : 'suggest-list__item',  // class on each items
     visibilityClass: 'is-opened'            // class to define results list visibility
   };
   ```
