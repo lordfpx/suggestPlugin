@@ -18,9 +18,9 @@ var suggestPlugin = (function(){
       defaults    = {
                       label          : 'label',               // match input with that
                       minLength      : 1,                     // request after [minLength] characters
-                      activeClass    : 'active',              // class for active items (hover+active)
+                      activeClass    : 'active',              // class for active item (hover+active)
                       resultsClass   : 'suggest-list',        // class to the results list element
-                      itemClass      : 'suggest-list__item',  // class on each items
+                      itemClass      : 'suggest-list__item',  // class on each item
                       visibilityClass: 'is-opened'            // class to define results list visibility
                     };
 
