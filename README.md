@@ -1,6 +1,9 @@
 # suggestPlugin
   This JS native accessible plugin will propose suggestions from ajax response.
 
+  Demo: [Codepen](https://codepen.io/lordfpx/pen/zqRzjX)
+
+
 ## Plugin initialization
 
   Default options are:
@@ -16,11 +19,13 @@
   };
   ```
 
+
   Simple use with defaults options:
 
   ```javascript
   suggestPlugin();
   ```
+
 
   Custom example:
 
@@ -30,6 +35,7 @@
     activeClass: 'is-focused'
   });
   ```
+
 
 ## HTML markup
 
@@ -42,6 +48,7 @@
   </div>
   ```
 
+
   Example for [restcountries API](https://restcountries.eu/):
 
   ```html
@@ -50,6 +57,7 @@
     <input id="searchCountry" type="text" name="searchCountry"/>
   </div>
   ```
+
 
   Example for [stackexchange API](https://api.stackexchange.com/) (stackOverflow here):
 
