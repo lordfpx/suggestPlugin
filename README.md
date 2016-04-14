@@ -7,7 +7,7 @@
 
   ```javascript
   {
-    abel          : 'label',                // match input with that
+    label          : 'label',                // match input with that
     minLength      : 1,                     // request after [minLength] characters
     activeClass    : 'active',              // class for active items (hover+active)
     resultsClass   : 'suggest-list',        // class to the results list element
