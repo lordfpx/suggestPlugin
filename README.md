@@ -4,6 +4,8 @@
 
   The display and animations are to be managed in CSS side using defaults or configured classes. You can also use JS custom events provided by the plugin to listen and make custom actions.
 
+  It provide also a minimal template system to display more informations in the list, see below.
+
   Demo: [Codepen](https://codepen.io/lordfpx/pen/zqRzjX)
 
   You can also find it on npm: https://www.npmjs.com/package/suggest-plugin
@@ -51,8 +53,10 @@
 
   Example for [OMDb API](http://omdbapi.com/):
 
+  Note the data-suggest-template attribute usage. By default, items will be the defined 'label'. If needed, you can also display other informations coming from the API such as the 'Type' in that case with custom template for the desired display.
+
   ```html
-  <div data-suggest='{"arrayName": "Search", "label": "Title"}' data-suggest-url="//www.omdbapi.com/?s=">
+  <div data-suggest='{"arrayName": "Search", "label": "Title"}' data-suggest-template='<span class="type">+<% Type %>+</span> - +<% Title %>' data-suggest-url="//www.omdbapi.com/?s=">
     <label for="searchFilm">search film title</label>
     <input id="searchFilm" type="text" name="searchFilm">
   </div>

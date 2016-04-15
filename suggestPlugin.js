@@ -31,6 +31,7 @@
   var trigger     = '[data-suggest]',
       urlAttr     = 'data-suggest-url',
       optionsAttr = 'data-suggest',
+      templateAttr= 'data-suggest-template',                  // template of an item. Ex: '<span class="type">+<% Type %>+</span> - +<% Title %>'
       defaults    = {
                       label          : 'label',               // match input with that
                       minLength      : 1,                     // request after [minLength] characters
@@ -54,6 +55,7 @@
     this.arrayName  = this.options.arrayName || false;      // if needed, name of the data array in response object
     this.url        = this.element.getAttribute(urlAttr);
     this.request    = new XMLHttpRequest();
+    this.template   = this.element.getAttribute(templateAttr) || '<% '+ this.options.label +' %>';
     this.keyNames   = {
       40: 'down',
       38: 'up',
@@ -276,7 +278,8 @@
     },
 
     _displaySuggestions: function(string, data) {
-      var that = this;
+      var that = this,
+          func;
 
       that.tempVal = that.input.value;
 
@@ -305,7 +308,9 @@
 
         for (var i = 0, len = that.data.length; i < len; i++) {
           template += '<li id="'+ i +'" role="option" class="'+ that.options.itemClass +'">';
-          template += '  <a href="#" type="button" tabindex="-1">'+ that.data[i][that.options.label] +'</a>';
+          template += '  <a href="#" type="button" tabindex="-1">';
+          template +=      that._generateItem(i)(that);
+          template += '  </a>';
           template += '</li>';
         }
 
@@ -323,6 +328,25 @@
       } else {
         that._closeSuggestions();
       }
+    },
+
+    _generateItem: function(index) {
+      var item      = this.template,
+          re        = /<%([^%>]+)?%>/g,
+          splitItem = item.split('+'),
+          match;
+
+      for (var i = 0, len = splitItem.length; i < len; i++) {
+        match = re.exec(splitItem[i])
+
+        if (match === null) {
+          splitItem[i] = "'"+ splitItem[i] +"'";
+        } else {
+          splitItem[i] = splitItem[i].replace(match[0], 'that.data['+ index +']["'+ match[1].trim() +'"]');
+        }
+      }
+
+      return new Function('that', 'return ' + splitItem.join(" + "));
     },
 
     _preSuggestion: function() {
