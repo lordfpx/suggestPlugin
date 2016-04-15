@@ -256,7 +256,7 @@
     },
 
     _callData: function(string, callback){
-      var that = this
+      var that = this;
 
       that.element.dispatchEvent(that.suggestRequest);
 
@@ -306,7 +306,7 @@
         for (var i = 0, len = that.data.length; i < len; i++) {
           template += '<li id="'+ i +'" role="option" class="'+ that.options.itemClass +'">';
           template += '  <a href="#" type="button" tabindex="-1">'+ that.data[i][that.options.label] +'</a>';
-          template += '</li>'
+          template += '</li>';
         }
 
         that.results.querySelector('ul').innerHTML = template;
@@ -377,7 +377,7 @@
         elements[i].dataset.plugin_suggest = new Suggest(elements[i], opt);
       }
     }
-  }
+  };
 
   return suggest;
 }));
