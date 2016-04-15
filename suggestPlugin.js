@@ -5,6 +5,7 @@
 }('suggestPlugin', function() {
   'use strict';
 
+  // extend objects
   function extend(){
     for(var i=1; i<arguments.length; i++) {
       for(var key in arguments[i]) {
@@ -16,12 +17,24 @@
     return arguments[0];
   }
 
+  // CustomEvent polyfile
+  function CustomEvent (event, params ){
+    params = params || { bubbles: false, cancelable: false, detail: undefined };
+    var evt = document.createEvent( 'CustomEvent' );
+    evt.initCustomEvent( event, params.bubbles, params.cancelable, params.detail );
+    return evt;
+  }
+  CustomEvent.prototype = window.Event.prototype;
+  window.CustomEvent = CustomEvent;
+
+
   var trigger     = '[data-suggest]',
       urlAttr     = 'data-suggest-url',
       optionsAttr = 'data-suggest',
       defaults    = {
                       label          : 'label',               // match input with that
                       minLength      : 1,                     // request after [minLength] characters
+                      wrapperClass   : 'suggest-wrapper',     // class for the div that wrap both input and results
                       activeClass    : 'active',              // class for active items (hover+active)
                       resultsClass   : 'suggest-list',        // class to the results list element
                       itemClass      : 'suggest-list__item',  // class on each items
@@ -81,15 +94,29 @@
       });
 
       that.results.addEventListener("click", function(e) {
-          e = e || window.event;
+        e = e || window.event;
 
-          if (e.target && e.target.matches("a")) {
-            that._insertSuggestion( e.target.innerText );
-          }
-        });
+        if (e.target && e.target.matches("a")) {
+          that._insertSuggestion( e.target.innerText );
+        }
+      });
+
+      // create custom events for developpers use
+      that._customEvents();
     },
 
     _prepareDOM: function() {
+      // prepare input
+      this.input = this.element.querySelector('input');
+      this.input.setAttribute('role', 'combobox');
+      this.input.setAttribute('aria-autocomplete', 'list');
+
+      // create wrapper container
+      var wrapper = document.createElement('div');
+          wrapper.className = this.options.wrapperClass;
+      this.input.parentNode.insertBefore(wrapper, this.input);
+      wrapper.appendChild(this.input);
+
       // prepare results box
       var results = document.createElement('ul');
           results.setAttribute('role', 'listbox');
@@ -98,15 +125,16 @@
           resultsWrapper.className = this.options.resultsClass;
           resultsWrapper.appendChild(results);
 
-      this.element.appendChild(resultsWrapper);
+      wrapper.appendChild(resultsWrapper);
       this.results = resultsWrapper;
 
-      // prepare input
-      this.input = this.element.querySelector('input');
-      this.input.setAttribute('role', 'combobox');
-      this.input.setAttribute('aria-autocomplete', 'list');
-
       return this;
+    },
+
+    _customEvents: function(){
+      this.suggestRequest  = new CustomEvent('suggestRequest');
+      this.suggestOpen     = new CustomEvent('suggestOpen');
+      this.suggestClose    = new CustomEvent('suggestClose');
     },
 
     _keyboardNavigation: function() {
@@ -177,6 +205,8 @@
 
     _closeSuggestions: function() {
       if (this.opened) {
+        this.element.dispatchEvent(this.suggestClose);
+
         this.results.classList.remove(this.options.visibilityClass);
         this.pointer = -1;
         this.opened = false;
@@ -228,12 +258,17 @@
     _callData: function(string, callback){
       var that = this
 
+      that.element.dispatchEvent(that.suggestRequest);
+
       callback = callback.bind(that);
 
       that.request.open("GET", that.url + string, true);
-      that.request.onreadystatechange = function () {
-        if (  this.readyState != 4 || this.status != 200) { return; }
+      that.request.onreadystatechange = function (e) {
+        if (this.readyState != 4 || this.status != 200) { return; }
         callback(string, JSON.parse(  this.responseText));
+      };
+      that.request.onerror = function(e){
+        console.log('error', e);
       };
       that.request.send();
 
@@ -275,6 +310,7 @@
         }
 
         that.results.querySelector('ul').innerHTML = template;
+        that.element.dispatchEvent(that.suggestOpen);
         that.results.classList.add(this.options.visibilityClass);
 
         // set status

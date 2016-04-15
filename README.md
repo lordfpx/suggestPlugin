@@ -1,6 +1,8 @@
 # suggestPlugin
 
-  This JS native accessible plugin will propose suggestions from ajax response. The display and animations are to be managed in CSS side using defaults or configured classes.
+  This JS native accessible plugin will propose suggestions from ajax response.
+
+  The display and animations are to be managed in CSS side using defaults or configured classes. You can also use JS custom events provided by the plugin to listen and make custom actions.
 
   Demo: [Codepen](https://codepen.io/lordfpx/pen/zqRzjX)
 
@@ -74,4 +76,24 @@
     <label for="searchStackoverflow">search question on stackoverflow</label>
     <input id="searchStackoverflow" type="text" name="searchStackoverflow"/>
   </div>
+  ```
+
+## Custom events
+
+The plugin send some custom events that can be listened:
+
+- suggestRequest: before the ajax call
+- suggestOpen: before results list opening
+- suggestClose: before results list closing
+
+Example usage:
+
+  ```javascript
+  var suggestPluginElements = document.querySelectorAll('[data-suggest]');
+
+  for (var i = 0, len = suggestPluginElements.length; i < len; i++){
+    suggestPluginElements[i].addEventListener('suggestRequest', function(e){
+      console.log(e);
+    });
+  }
   ```
