@@ -17,7 +17,7 @@
     return arguments[0];
   }
 
-  // CustomEvent polyfile
+  // CustomEvent polyfill
   function CustomEvent (event, params ){
     params = params || { bubbles: false, cancelable: false, detail: undefined };
     var evt = document.createEvent( 'CustomEvent' );
@@ -29,11 +29,17 @@
 
 
   var trigger     = '[data-suggest]',
-      urlAttr     = 'data-suggest-url',
       optionsAttr = 'data-suggest',
-      templateAttr= 'data-suggest-template',                  // template of an item. Ex: '<span class="type">+<% Type %>+</span> - +<% Title %>'
+      urlAttr     = 'data-suggest-url',
+
+      // Template of an item. Ex: '<span class="type">+<% Type %>+</span> - +<% Title %>'
+      // Static contents and variables must be separate by '+'
+      // variables must be put inside <% ... %>
+      // When no template is sepcified, the matched value is simply put into the list
+      templateAttr= 'data-suggest-template',
+
       defaults    = {
-                      label          : 'label',               // match input with that
+                      matchWith      : 'label',               // match input with that
                       minLength      : 1,                     // request after [minLength] characters
                       wrapperClass   : 'suggest-wrapper',     // class for the div that wrap both input and results
                       activeClass    : 'active',              // class for active items (hover+active)
@@ -49,13 +55,13 @@
     this.options    = extend({}, defaults, opt, attrOptions);
 
     this.data       = [];     // response from the ajax call
-    this.tempVal    = "";     // when activating an item, store user input
+    this.tempVal    = "";     // when navigating with keyboard, store enlighted item
     this.opened     = false;
     this.pointer    = -1;     // active item in list (-1 = no active item)
-    this.arrayName  = this.options.arrayName || false;      // if needed, name of the data array in response object
+    this.arrayName  = this.options.arrayName || false;      // if needed, precise the name of the data array in response object
     this.url        = this.element.getAttribute(urlAttr);
     this.request    = new XMLHttpRequest();
-    this.template   = this.element.getAttribute(templateAttr) || '<% '+ this.options.label +' %>';
+    this.template   = this.element.getAttribute(templateAttr) || '<% '+ this.options.matchWith +' %>';  // custom template or default
     this.keyNames   = {
       40: 'down',
       38: 'up',
@@ -78,10 +84,8 @@
       that._prepareDOM()
           ._keyboardNavigation();
 
-      // close on document click
+      // close on document.body click
       document.body.addEventListener('click', function(e) {
-        e = e || window.event;
-
         if (that.opened && e.target !== that.input) {
           that._undoPreSuggestion()
               ._closeSuggestions();
@@ -95,12 +99,16 @@
         }
       });
 
+      // click on an item
       that.results.addEventListener("click", function(e) {
-        e = e || window.event;
+        var target = e.target;
 
-        if (e.target && e.target.matches("a")) {
-          that._insertSuggestion( e.target.innerText );
+        while (target.tagName !== 'LI') {
+          target = target.parentNode;
+          if (target === this) return;
         }
+
+        that._insertSuggestion( target.id );
       });
 
       // create custom events for developpers use
@@ -112,10 +120,12 @@
       this.input = this.element.querySelector('input');
       this.input.setAttribute('role', 'combobox');
       this.input.setAttribute('aria-autocomplete', 'list');
+      this.input.setAttribute('autocomplete', 'off');
 
       // create wrapper container
       var wrapper = document.createElement('div');
           wrapper.className = this.options.wrapperClass;
+
       this.input.parentNode.insertBefore(wrapper, this.input);
       wrapper.appendChild(this.input);
 
@@ -125,6 +135,7 @@
 
       var resultsWrapper = document.createElement('div');
           resultsWrapper.className = this.options.resultsClass;
+          resultsWrapper.style.visibility = 'hidden';
           resultsWrapper.appendChild(results);
 
       wrapper.appendChild(resultsWrapper);
@@ -137,6 +148,7 @@
       this.suggestRequest  = new CustomEvent('suggestRequest');
       this.suggestOpen     = new CustomEvent('suggestOpen');
       this.suggestClose    = new CustomEvent('suggestClose');
+      this.suggestSelected = new CustomEvent('suggestSelected');
     },
 
     _keyboardNavigation: function() {
@@ -145,8 +157,6 @@
 
       // Prevent form submit when navigating in suggestions
       that.input.addEventListener('keydown', function(e) {
-        e = e || window.event;
-
         if (that.keyNames[e.keyCode] === 'enter' && that.pointer !== -1) {
           e.preventDefault();
         }
@@ -205,13 +215,25 @@
       return this;
     },
 
+    _openSuggestions: function() {
+      if (!this.opened) {
+        this.element.dispatchEvent(this.suggestOpen);
+        this.results.classList.add(this.options.visibilityClass);
+        this.results.style.visibility = 'visible';
+        this.pointer  = -1;
+        this.opened   = true;
+      }
+
+      return this;
+    },
+
     _closeSuggestions: function() {
       if (this.opened) {
         this.element.dispatchEvent(this.suggestClose);
-
         this.results.classList.remove(this.options.visibilityClass);
-        this.pointer = -1;
-        this.opened = false;
+        this.results.style.visibility = 'hidden';
+        this.pointer  = -1;
+        this.opened   = false;
       }
 
       return this;
@@ -266,7 +288,7 @@
 
       that.request.open("GET", that.url + string, true);
       that.request.onreadystatechange = function (e) {
-        if (this.readyState != 4 || this.status != 200) { return; }
+        if (this.readyState !== 4 || this.status !== 200) { return; }
         callback(string, JSON.parse(  this.responseText));
       };
       that.request.onerror = function(e){
@@ -278,30 +300,30 @@
     },
 
     _displaySuggestions: function(string, data) {
-      var that = this,
-          func;
+      var that = this;
 
       that.tempVal = that.input.value;
 
-      if (data) {
-        // if it's directly an array of results -> [{"bla": "xxx"}, {"bla": "xxx"}, {"bla": "xxx"}]
+      if (typeof data !== 'undefined') {
+        // if it's directly an array of results
+        // -> [{"bla": "xxx"}, {"bla": "xxx"}, {"bla": "xxx"}]
         if (data.length) {
           that.data = data;
 
-        // if the array is in an object (arrayName otpion is required)
+        // if the array is a value, arrayName option is required
         // -> {"items": [{"bla": "xxx"}, {"bla": "xxx"}, {"bla": "xxx"}]}
         } else {
           if (that.arrayName) {
             that.data = data[that.arrayName];
           } else {
-            console.log('You must specify the arrayName option to find data', 'data-suggest=\"{"arrayName": "Search", "label": "Title"}\" for exemple');
+            console.log('You must specify the arrayName option to find data', 'data-suggest=\"{"arrayName": "Search", "matchWith": "Title"}\" for exemple');
           }
         }
       }
 
       if (string !== '' && typeof that.data !== 'undefined' && that.data.length > 0) {
         // directly return if only 1 entry  and if === user entry
-        if (that.data.length === 1 && string === that.data[0][that.options.label]) { return; }
+        if (that.data.length === 1 && string === that.data[0][that.options.matchWith]) { return; }
 
         // generate results list
         var template = '';
@@ -315,15 +337,9 @@
         }
 
         that.results.querySelector('ul').innerHTML = template;
-        that.element.dispatchEvent(that.suggestOpen);
-        that.results.classList.add(this.options.visibilityClass);
+        that.suggestions = that.results.querySelectorAll('li'); // keep suggestions list
 
-        // set status
-        that.opened = true;
-        that.pointer = -1;
-
-        // keep suggestions list
-        that.suggestions = that.results.querySelectorAll('li');
+        that._openSuggestions();
 
       } else {
         that._closeSuggestions();
@@ -332,12 +348,12 @@
 
     _generateItem: function(index) {
       var item      = this.template,
-          re        = /<%([^%>]+)?%>/g,
+          reg       = /<%([^%>]+)?%>/g,
           splitItem = item.split('+'),
           match;
 
       for (var i = 0, len = splitItem.length; i < len; i++) {
-        match = re.exec(splitItem[i])
+        match = reg.exec(splitItem[i])
 
         if (match === null) {
           splitItem[i] = "'"+ splitItem[i] +"'";
@@ -351,7 +367,7 @@
 
     _preSuggestion: function() {
       // prefill the input with selected suggestion
-      this.input.value = this.data[this.pointer][this.options.label];
+      this.input.value = this.data[this.pointer][this.options.matchWith];
       return this;
     },
 
@@ -374,10 +390,11 @@
       return this;
     },
 
-    _insertSuggestion: function(string) {
-      this.input.value = string ? string : this.data[this.pointer][this.options.label];
+    _insertSuggestion: function(id) {
+      this.input.value = id ? this.data[id][this.options.matchWith] : this.data[this.pointer][this.options.matchWith];
       this.data = [];
       this._closeSuggestions();
+      this.element.dispatchEvent(this.suggestSelected);
     },
 
     _getFocus: function() {

@@ -21,7 +21,7 @@
 
   ```javascript
   {
-    label          : 'label',               // match input with that
+    matchWith      : 'label',               // match user input with this name ('matchWith' is the new name for 'label')
     minLength      : 1,                     // request after [minLength] characters
     wrapperClass   : 'suggest-wrapper',     // class for the div that wrap both input and results
     activeClass    : 'active',              // class for active items (hover+active)
@@ -89,6 +89,7 @@ The plugin send some custom events that can be listened:
 - suggestRequest: before the ajax call
 - suggestOpen: before results list opening
 - suggestClose: before results list closing
+- suggestSelected: after the user has made a choice
 
 Example usage:
 
