@@ -56,7 +56,7 @@
   Note the data-suggest-template attribute usage. By default, items will be the defined 'label'. If needed, you can also display other informations coming from the API such as the 'Type' in that case with custom template for the desired display.
 
   ```html
-  <div data-suggest='{"arrayName": "Search", "label": "Title"}' data-suggest-template='<span class="type">+<% Type %>+</span> - +<% Title %>' data-suggest-url="//www.omdbapi.com/?s=">
+  <div data-suggest='{"arrayName": "Search", "matchWith": "Title"}' data-suggest-template='<span class="type">+<% Type %>+</span> - +<% Title %>' data-suggest-url="//www.omdbapi.com/?s=">
     <label for="searchFilm">search film title</label>
     <input id="searchFilm" type="text" name="searchFilm">
   </div>
@@ -66,7 +66,7 @@
   Example for [restcountries API](https://restcountries.eu/):
 
   ```html
-  <div data-suggest='{"label": "name"}' data-suggest-url="//restcountries.eu/rest/v1/name/">
+  <div data-suggest='{"matchWith": "name"}' data-suggest-url="//restcountries.eu/rest/v1/name/">
     <label for="searchCountry">search country name</label>
     <input id="searchCountry" type="text" name="searchCountry"/>
   </div>
@@ -76,7 +76,7 @@
   Example for [stackexchange API](https://api.stackexchange.com/) (stackOverflow here):
 
   ```html
-  <div data-suggest='{"arrayName": "items", "label": "title"}' data-suggest-url="//api.stackexchange.com/2.0/search?site=stackoverflow.com&amp;tagged=javascript&amp;pagesize=10&amp;intitle=">
+  <div data-suggest='{"arrayName": "items", "matchWith": "title"}' data-suggest-url="//api.stackexchange.com/2.0/search?site=stackoverflow.com&amp;tagged=javascript&amp;pagesize=10&amp;intitle=">
     <label for="searchStackoverflow">search question on stackoverflow</label>
     <input id="searchStackoverflow" type="text" name="searchStackoverflow"/>
   </div>
