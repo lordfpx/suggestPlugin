@@ -6,13 +6,15 @@
 
   It provide also a minimal template system to display more informations in the list, see below.
 
+  Browser support start from IE10. To add IE9 support, you must add this shim for classList: https://developer.mozilla.org/en-US/docs/Web/API/Element/classList#JavaScript_shim_for_other_implementations or if your using npm, https://www.npmjs.com/package/classlist-polyfill
+
   Demo: [Codepen](https://codepen.io/lordfpx/pen/zqRzjX)
 
   You can also find it on npm: https://www.npmjs.com/package/suggest-plugin
 
   > npm install suggest-plugin
 
-  The plugin is commonJS (tested with browserify) and AMD (untested) compliant.
+  The plugin is commonJS and AMD compliant.
 
 
 ## Plugin initialization
